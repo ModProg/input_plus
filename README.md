@@ -11,3 +11,6 @@ This is currently in early development.
 - [ ] Tab completion
 - [ ] Highlighting
 - [ ] anything else
+
+## Keypress
+Keypress is currently included directly, due to https://deno.land/x/keypress@0.0.4 currently not working
