@@ -1,4 +1,4 @@
-import { readInput } from "./index.ts";
+import { readInput } from "./mod.ts";
 console.log("Single Line Input:");
 console.log("result: \n" + (await readInput())[0]);
 
