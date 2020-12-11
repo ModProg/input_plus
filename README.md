@@ -1,3 +1,4 @@
+![Test](https://github.com/ModProg/input_plus/workflows/Deno/badge.svg)
 # Input Plus
 
 Input Plus is a module for advanced Input (multiline input, tab completion etc.)
