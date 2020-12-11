@@ -1,6 +1,5 @@
 import { readInput } from "./mod.ts";
-import { decode, encode } from "https://deno.land/std@0.79.0/encoding/utf8.ts";
-import { assertEquals } from "https://deno.land/std@0.79.0/testing/asserts.ts";
+import { assertEquals, decode, encode } from "./dev_deps.ts";
 
 class TestReader implements Deno.Reader {
   rid: number;

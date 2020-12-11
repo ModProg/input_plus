@@ -1,5 +1,5 @@
 import { ANSI, DeleteMode, flatten, Keys } from "./helpers.ts";
-import { decodeKeypress, Keypress } from "./keypress/mod.ts";
+import { decodeKeypress, Keypress } from "./deps.ts";
 import { generateKeyMap } from "./utils.ts";
 
 export type mapFunc = (args: {

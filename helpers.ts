@@ -1,4 +1,4 @@
-import { Keypress } from "./keypress/mod.ts";
+import { Keypress } from "./deps.ts";
 import { KeyMap, mapFunc } from "./mod.ts";
 
 export function flatten(map: KeyMap) {
