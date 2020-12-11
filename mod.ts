@@ -126,7 +126,9 @@ export async function readInput({
       }
 
       if (todo.endinput) {
-        Deno.setRaw(reader.rid, false);
+        if (setRaw) {
+          Deno.setRaw(reader.rid, false);
+        }
         return lines.join("\n");
       }
     }
