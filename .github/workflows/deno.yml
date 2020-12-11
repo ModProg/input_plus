@@ -32,8 +32,12 @@ jobs:
         with:
           deno-version: ${{ matrix.deno }} # tests across multiple Deno versions
 
+      - name: Test if Formatted
+        run: deno fmt --unstable --check --ignore=keypress
+
       - name: Cache Dependencies
         run: deno cache --unstable deps.ts dev_deps.ts
 
       - name: Run Tests
         run: deno test --unstable mod_test.ts
+      
