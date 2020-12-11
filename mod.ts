@@ -29,6 +29,7 @@ export async function readInput({
   writer = Deno.stdout,
   keyMap = generateKeyMap(),
   bufferLength = 1024,
+  setRaw = true,
 }: {
   reader?: Deno.Reader & { rid: number };
   writer?: Deno.Writer;
@@ -37,15 +38,20 @@ export async function readInput({
   endInput?: string[];
   highlighter?: (input: string) => string;
   bufferLength?: number;
+  setRaw?: boolean;
 } = {}): Promise<string> {
-  if (!Deno.isatty(reader.rid)) {
-    throw new Error("Keypress can be read only under TTY.");
+  if (setRaw) {
+    if (!Deno.isatty(reader.rid)) {
+      throw new Error("Keypress can be read only under TTY.");
+    } else {
+      Deno.setRaw(reader.rid, true);
+    }
   }
+
   const flatMap = flatten(keyMap);
   const encoder = new TextEncoder();
   var lines: string[] = [""];
   const buffer = new Uint8Array(bufferLength);
-  Deno.setRaw(reader.rid, true);
   var cursorX = 0;
   var cursorY = 0;
   while (true) {

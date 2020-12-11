@@ -7,7 +7,7 @@ class TestReader implements Deno.Reader {
   index = 0;
 
   constructor(input: string) {
-    this.rid = Deno.stdin.rid;
+    this.rid = 0;
     this.input = input;
   }
   read(p: Uint8Array): Promise<number | null> {
@@ -34,6 +34,7 @@ Deno.test("readInput single line", async () => {
   const input = await readInput({
     reader: stdin,
     writer: stdout,
+    setRaw: false,
   });
   assertEquals(input, "Test with nönä ẠSCÍµ ");
 });
