@@ -14,3 +14,8 @@ This is currently in early development.
 
 ## Keypress
 Keypress is currently included directly, due to https://deno.land/x/keypress@0.0.4 currently not working
+
+## Files
+`mod.ts` Is the main module.
+`utils.ts` Contains some utility functions to make using Input Plus more bearable
+`helpers.ts` Contains some helpers used in the other files.
