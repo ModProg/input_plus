@@ -1,5 +1,6 @@
 import { readInput } from "./mod.ts";
 import { assertEquals, decode, encode } from "./dev_deps.ts";
+import { generateKeyMap } from "./utils.ts";
 
 class TestReader implements Deno.Reader {
   rid: number;
@@ -37,4 +38,18 @@ Deno.test("readInput single line", async () => {
     setRaw: false,
   });
   assertEquals(input, "Test with nönä ẠSCÍµ ");
+});
+
+Deno.test("readInput multi line", async () => {
+  const stdin = new TestReader(
+    "Hii\b\nMy name is \b: V!\n\b\b\nNice to meet you.\x04",
+  );
+  const stdout = new TestWriter();
+  const input = await readInput({
+    reader: stdin,
+    writer: stdout,
+    setRaw: false,
+    keyMap: generateKeyMap(3),
+  });
+  assertEquals(input, "Hi\nMy name is: V\nNice to meet you.\n");
 });
