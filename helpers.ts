@@ -80,7 +80,7 @@ export enum ANSI {
   CUB = "D",
   CHA = "G",
   ED = "J",
-  EL = "L",
+  EL = "K",
   SCP = "s",
   RCP = "u",
 }
