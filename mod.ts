@@ -8,19 +8,30 @@ export type mapFunc = (args: {
   cursorX: number;
   cursorY: number;
   key: Keypress;
+  state: State;
 }) =>
   | {
     lines?: string[] | undefined;
     cursorX?: number | undefined;
     cursorY?: number | undefined;
     endinput?: boolean | undefined;
+    state?: State;
   }
   | {
     input?: string | undefined;
     cursorX?: number | undefined;
     cursorY?: number | undefined;
     endinput?: boolean | undefined;
+    state?: State;
   };
+
+export type State = {
+  /**
+   * Index of current keypress, 0 based
+   */
+  keyPressIndex: number;
+  [key: string]: unknown;
+};
 
 export type KeyMap = Map<Keys, mapFunc>;
 
@@ -54,6 +65,9 @@ export async function readInput({
   const buffer = new Uint8Array(bufferLength);
   var cursorX = 0;
   var cursorY = 0;
+  const state: State = {
+    keyPressIndex: 0,
+  };
   while (true) {
     const length = <number> await reader.read(buffer);
     const events = decodeKeypress(buffer.subarray(0, length));
@@ -73,9 +87,11 @@ export async function readInput({
             cursorX: cursorX,
             cursorY: cursorY,
             key: event,
+            state: state,
           });
         }
       }
+      state.keyPressIndex++;
       if (todo.lines) {
         lines = todo.lines;
         await writer.write(
