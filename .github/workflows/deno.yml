@@ -35,10 +35,13 @@ jobs:
       - name: Test if Formatted
         run: deno fmt --unstable --check --ignore=keypress
         if: matrix.os == 'ubuntu-latest'
-        
+
+      - name: Deno Lint
+        run: deno lint --unstable
+        if: matrix.os == 'ubuntu-latest'
+
       - name: Cache Dependencies
         run: deno cache --unstable deps.ts dev_deps.ts
 
       - name: Run Tests
         run: deno test --unstable mod_test.ts
-      
