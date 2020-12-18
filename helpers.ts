@@ -46,16 +46,16 @@ export class KeySpec {
 
   is(keypress: Keypress): boolean {
     return (
-      (this.key == undefined ||
-        (typeof this.key == "string"
-          ? this.key == keypress.key
+      (this.key === undefined ||
+        (typeof this.key === "string"
+          ? this.key === keypress.key
           : this.key.test(keypress.key ?? ""))) &&
-      (this.ctrl == undefined || this.ctrl == keypress.ctrlKey) &&
-      (this.meta == undefined || this.meta == keypress.metaKey) &&
-      (this.shift == undefined || this.shift == keypress.shiftKey) &&
-      (this.sequence == undefined ||
-        (typeof this.sequence == "string"
-          ? this.sequence == keypress.sequence
+      (this.ctrl === undefined || this.ctrl === keypress.ctrlKey) &&
+      (this.meta === undefined || this.meta === keypress.metaKey) &&
+      (this.shift === undefined || this.shift === keypress.shiftKey) &&
+      (this.sequence === undefined ||
+        (typeof this.sequence === "string"
+          ? this.sequence === keypress.sequence
           : this.sequence.test(keypress.sequence)))
     );
   }
@@ -90,3 +90,44 @@ export enum DeleteMode {
   ToCursor = 1,
   Complete = 2,
 }
+
+function isRecord(value: unknown): value is Record<PropertyKey, unknown> {
+  return value != undefined && value != null && typeof value === "object";
+}
+
+export function hasOwnProperty<
+  X extends Record<string, unknown>,
+  Y extends PropertyKey,
+  Z extends PrimitiveOrConstructor,
+>(
+  obj: unknown,
+  prop: Y,
+  type: Z,
+): obj is X & Record<Y, GuardedType<Z>> {
+  if (isRecord(obj) && prop in obj) {
+    const localPrimitiveOrConstructor: PrimitiveOrConstructor = type;
+    if (typeof localPrimitiveOrConstructor === "string") {
+      return type === "unknown" ||
+        typeof obj[prop] === localPrimitiveOrConstructor;
+    }
+    return obj[prop] instanceof localPrimitiveOrConstructor;
+  }
+  return false;
+}
+
+interface typeMap { // for mapping from strings to types
+  string: string;
+  number: number;
+  boolean: boolean;
+  unknown: unknown;
+}
+
+type PrimitiveOrConstructor = // 'string' | 'number' | 'boolean' | constructor
+  | { new (...args: unknown[]): unknown }
+  | keyof typeMap;
+
+// infer the guarded type from a specific case of PrimitiveOrConstructor
+type GuardedType<T extends PrimitiveOrConstructor> = T extends
+  { new (...args: unknown[]): infer U } ? U
+  : T extends keyof typeMap ? typeMap[T]
+  : never;
