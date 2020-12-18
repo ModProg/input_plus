@@ -1,5 +1,5 @@
-import { Keys, KeySpec } from "./helpers.ts";
-import { KeyMap } from "./mod.ts";
+import { hasOwnProperty, Keys, KeySpec } from "./helpers.ts";
+import { KeyMap, mapFunc, State } from "./mod.ts";
 
 export function basicHighlighter(
   highlighting: Map<
@@ -10,11 +10,82 @@ export function basicHighlighter(
   return (text) => text;
 }
 
+/**
+ * Generates a Completion function for {@link generateKeyMap}
+ * @param completion Array of strings to match and complete or tuples with a matcher and the replacement.
+ * @param completeLine When true only complete if it matches the from beginning of line to cursor
+ */
 export function basicCompletion(
   completion: ([RegExp | string, string] | string)[],
+  completeEmpty = true,
   completeLine = false,
-): (input: string) => string {
-  return (text) => text;
+): (
+  {}: { input: string; cursorX: number; state: State },
+) => { input: string; cursorX: number; state: State } {
+  return ({
+    input,
+    cursorX,
+    state,
+  }) => {
+    var searchOffset: number, lastWord: string;
+    var replacement: string | undefined;
+    if (
+      hasOwnProperty(state, "lastCompletion", "unknown") &&
+      hasOwnProperty(state.lastCompletion, "index", "number") &&
+      state.lastCompletion.index === state.keyPressIndex - 1 &&
+      hasOwnProperty(state.lastCompletion, "completionIndex", "number") &&
+      hasOwnProperty(state.lastCompletion, "lastWord", "string") &&
+      hasOwnProperty(state.lastCompletion, "input", "string") &&
+      hasOwnProperty(state.lastCompletion, "cursorX", "number")
+    ) {
+      searchOffset = state.lastCompletion.completionIndex + 1;
+      lastWord = state.lastCompletion.lastWord;
+      input = state.lastCompletion.input;
+      cursorX = state.lastCompletion.cursorX;
+    } else {
+      const relInput = input.substring(0, cursorX);
+      searchOffset = 0;
+      lastWord = completeLine
+        ? relInput
+        : (relInput.match(/\W?(\w*)$/) as RegExpMatchArray)[1];
+    }
+
+    for (let i = searchOffset; i < completion.length + searchOffset; i++) {
+      const comp = completion[i % completion.length];
+      if (
+        comp instanceof Array
+      ) {
+        if (
+          comp[0] instanceof RegExp
+            ? comp[0].test(lastWord)
+            : lastWord === comp[0] || lastWord === "" && completeEmpty
+        ) {
+          replacement = comp[1];
+        }
+      } else if (
+        (lastWord != "" || completeEmpty) && comp.startsWith(lastWord)
+      ) {
+        replacement = comp;
+      }
+
+      if (replacement) {
+        state.lastCompletion = {
+          index: state.keyPressIndex,
+          lastWord: lastWord,
+          input: input,
+          cursorX: cursorX,
+          completionIndex: i,
+        };
+        return {
+          input: input.substring(0, cursorX - lastWord.length) + replacement +
+            input.substr(cursorX),
+          cursorX: cursorX + replacement?.length - lastWord.length,
+          state,
+        };
+      }
+    }
+    return { input: input, cursorX: cursorX, state };
+  };
 }
 
 export enum Key {
@@ -69,7 +140,7 @@ export function generateKeyMap(
     invalidKeys?: Keys;
     endLinebreak?: boolean;
     endKeys?: Keys;
-    completion?: ({}: { input: string; cursorX: number }) => { input: string };
+    completion?: mapFunc;
   } = {},
 ) {
   var map: KeyMap = new Map();
@@ -96,7 +167,7 @@ export function generateKeyMap(
       cursorY: cursorY + 1,
     }));
     map.set(["return", "enter"], ({ cursorY, cursorX, lines }) => {
-      if (lines.length == lineCount) {
+      if (lines.length === lineCount) {
         return {};
       }
       const input = lines[cursorY].substring(cursorX);
@@ -135,7 +206,7 @@ export function generateKeyMap(
   }));
 
   map.set("backspace", ({ cursorY, input, cursorX, lines }) => {
-    if (cursorX == 0) {
+    if (cursorX === 0) {
       return cursorY > 0
         ? {
           lines: [
@@ -153,7 +224,7 @@ export function generateKeyMap(
   });
 
   map.set("delete", ({ input, cursorX, cursorY, lines }) => {
-    if (cursorX == lines[cursorY].length) {
+    if (cursorX === lines[cursorY].length) {
       return lines.length > cursorY + 1
         ? {
           lines: [

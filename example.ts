@@ -1,9 +1,9 @@
 import { readInput } from "./mod.ts";
-import { generateKeyMap } from "./utils.ts";
+import { basicCompletion, generateKeyMap } from "./utils.ts";
 console.log("Single Char Input:");
 console.log("Human? [Y/N]:");
 if (
-  "y" == (await readInput(
+  "y" === (await readInput(
     {
       keyMap: new Map(
         [[
@@ -19,12 +19,16 @@ if (
   console.log("Me neither.");
 }
 
-console.log("Single Line Input:");
+console.log(
+  'Single Line Input, tab completes "hello", "hell" and "Im" to "I\'m":',
+);
 console.log(
   ", result: \n" +
     (
       await readInput({
-        keyMap: generateKeyMap(1),
+        keyMap: generateKeyMap(1, {
+          completion: basicCompletion(["hello", "hell", ["Im", "I'm"]]),
+        }),
       })
     ),
 );

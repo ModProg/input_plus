@@ -1,6 +1,6 @@
 import { readInput } from "./mod.ts";
 import { assertEquals, decode, encode } from "./dev_deps.ts";
-import { generateKeyMap } from "./utils.ts";
+import { basicCompletion, generateKeyMap } from "./utils.ts";
 
 class TestReader implements Deno.Reader {
   rid: number;
@@ -52,4 +52,18 @@ Deno.test("readInput multi line", async () => {
     keyMap: generateKeyMap(3),
   });
   assertEquals(input, "Hi\nMy name is: V\nNice to meet you.\n");
+});
+
+Deno.test("basicComplete", async () => {
+  const stdin = new TestReader("ab\t\r");
+  const stdout = new TestWriter();
+  const input = await readInput({
+    reader: stdin,
+    writer: stdout,
+    setRaw: false,
+    keyMap: generateKeyMap(1, {
+      completion: basicCompletion(["abc"]),
+    }),
+  });
+  assertEquals(input, "abc");
 });
