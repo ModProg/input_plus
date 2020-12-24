@@ -40,17 +40,17 @@ console.log(
     (
       await readInput({
         keyMap: generateKeyMap(5),
-          highlighter: basicHighlighter(
-            new Map<
-              string | RegExp | (string | RegExp)[],
-              ((input: string) => string) | ((input: string) => string)[]
-            >(
-              [
-                [["{", "}"], [color.bold, color.dim]],
-                [["I", "you", "they"], color.italic],
-              ],
-            ),
-          )
+        highlighter: basicHighlighter(
+          new Map<
+            string | RegExp | (string | RegExp)[],
+            ((input: string) => string) | ((input: string) => string)[]
+          >(
+            [
+              [["{", "}"], [color.bold, color.dim]],
+              [["I", "you", "they"], color.italic],
+            ],
+          ),
+        ),
       })
     ),
 );
