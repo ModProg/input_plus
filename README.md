@@ -16,8 +16,8 @@ This is currently in early development.
 
 - [x] Single line input
 - [x] Multi line input
-- [ ] Tab completion
-- [ ] Highlighting
+- [x] Tab completion
+- [x] Highlighting
 - [ ] anything else
 
 ## Files
