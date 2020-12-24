@@ -12,7 +12,7 @@ class TestReader implements Deno.Reader {
     this.rid = 0;
     this.input = input;
   }
-  async read(p: Uint8Array): Promise<number | null> {
+  read(p: Uint8Array): Promise<number | null> {
     if (this.index < this.input.length) {
       const enc = encode(this.input[this.index++]);
       p.set(enc);
