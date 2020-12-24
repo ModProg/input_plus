@@ -131,3 +131,7 @@ type GuardedType<T extends PrimitiveOrConstructor> = T extends
   { new (...args: unknown[]): infer U } ? U
   : T extends keyof typeMap ? typeMap[T]
   : never;
+
+export function pipe<T>(...fns: ((...args: T[]) => T)[]) {
+  return fns.reduce((f, g) => (...args: T[]) => g(f(...args)));
+}

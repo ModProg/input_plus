@@ -40,15 +40,14 @@ export async function readInput({
   writer = Deno.stdout,
   keyMap = generateKeyMap(),
   bufferLength = 1024,
+  highlighter = (input) => input,
   setRaw = true,
 }: {
   reader?: Deno.Reader & { rid: number };
   writer?: Deno.Writer;
   keyMap?: KeyMap;
-  valid?: (input: string) => boolean;
-  endInput?: string[];
-  highlighter?: (input: string) => string;
   bufferLength?: number;
+  highlighter?: (line: string) => string;
   setRaw?: boolean;
 } = {}): Promise<string> {
   if (setRaw) {
@@ -100,7 +99,7 @@ export async function readInput({
               ANSI.CSI + 1 + ANSI.CHA + //move to beginning of line
               ANSI.CSI + ANSI.ED + // clear Screen
               ANSI.CSI + ANSI.SCP + // save Cursor Position
-              lines.join("\n") +
+              lines.map(highlighter).join("\n") +
               ANSI.CSI + ANSI.RCP + // return to saved Cursor Position
               ANSI.CSI + (cursorX + 1) + ANSI.CHA + // move to cursorX
               (0 != cursorY ? ANSI.CSI + cursorY + ANSI.CUD : ""),
@@ -129,7 +128,7 @@ export async function readInput({
           ANSI.CSI + ANSI.SCP + // save Cursor Position
             ANSI.CSI + 1 + ANSI.CHA + // move to beginning of line
             ANSI.CSI + DeleteMode.Complete + ANSI.EL + // clear line
-            todo.input +
+            highlighter(todo.input) +
             ANSI.CSI + ANSI.RCP, // return to saved Cursor Position
         ));
       }

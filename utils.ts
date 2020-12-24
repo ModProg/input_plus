@@ -1,13 +1,41 @@
-import { hasOwnProperty, Keys, KeySpec } from "./helpers.ts";
+import { hasOwnProperty, Keys, KeySpec, pipe } from "./helpers.ts";
 import { KeyMap, mapFunc, State } from "./mod.ts";
 
 export function basicHighlighter(
   highlighting: Map<
     (RegExp | string)[] | RegExp | string,
-    (input: string) => string | ((input: string) => string)[]
+    ((input: string) => string) | ((input: string) => string)[]
   >,
 ): (input: string) => string {
-  return (text) => text;
+  const normalisedMap = new Map<
+    RegExp | string,
+    ((input: string) => string)[]
+  >();
+  for (const highlight of highlighting) {
+    const matchers = highlight[0] instanceof Array
+      ? highlight[0]
+      : [highlight[0]];
+    const highlighters = highlight[1] instanceof Array
+      ? highlight[1]
+      : [highlight[1]];
+    for (const matcher of matchers) {
+      if (normalisedMap.has(matcher)) {
+        normalisedMap.get(matcher)?.push(...highlighters);
+      } else {
+        normalisedMap.set(matcher, highlighters);
+      }
+    }
+  }
+  const appliedMap = new Map<RegExp | string, (input: string) => string>();
+  for (const highlight of normalisedMap) {
+    appliedMap.set(highlight[0], pipe(...highlight[1]));
+  }
+  return (text) => {
+    for (const highlight of appliedMap) {
+      text = text.replace(highlight[0], highlight[1]);
+    }
+    return text;
+  };
 }
 
 /**

@@ -1,5 +1,6 @@
+import { color } from "./dev_deps.ts";
 import { readInput } from "./mod.ts";
-import { basicCompletion, generateKeyMap } from "./utils.ts";
+import { basicCompletion, basicHighlighter, generateKeyMap } from "./utils.ts";
 console.log("Single Char Input:");
 console.log("Human? [Y/N]:");
 if (
@@ -39,6 +40,17 @@ console.log(
     (
       await readInput({
         keyMap: generateKeyMap(5),
+          highlighter: basicHighlighter(
+            new Map<
+              string | RegExp | (string | RegExp)[],
+              ((input: string) => string) | ((input: string) => string)[]
+            >(
+              [
+                [["{", "}"], [color.bold, color.dim]],
+                [["I", "you", "they"], color.italic],
+              ],
+            ),
+          )
       })
     ),
 );
