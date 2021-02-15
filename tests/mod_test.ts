@@ -1,9 +1,14 @@
-import { assertStringIncludes } from "https://deno.land/std@0.81.0/testing/asserts.ts";
-import { assertEquals, color, decode, encode } from "./dev_deps.ts";
-import { readInput } from "./mod.ts";
-import { basicCompletion, basicHighlighter, generateKeyMap } from "./utils.ts";
+import {
+  assertEquals,
+  assertStringIncludes,
+  color,
+  decode,
+  encode,
+} from "../dev_deps.ts";
+import { readInput } from "../mod.ts";
+import { basicCompletion, basicHighlighter, generateKeyMap } from "../utils.ts";
 
-class TestReader implements Deno.Reader {
+export class TestReader implements Deno.Reader {
   rid: number;
   input: string;
   index = 0;
@@ -22,7 +27,7 @@ class TestReader implements Deno.Reader {
   }
 }
 
-class TestWriter implements Deno.Writer {
+export class TestWriter implements Deno.Writer {
   input = "";
   write(p: Uint8Array): Promise<number> {
     this.input += decode(p);
@@ -60,7 +65,7 @@ Deno.test("readInput multi line", async () => {
 });
 
 Deno.test("basicComplete", async () => {
-  const stdin = new TestReader("ab\t\r");
+  const stdin = new TestReader("a\t\t\r");
   const stdout = new TestWriter();
   console.log("\n---");
   const input = await readInput({
@@ -68,7 +73,7 @@ Deno.test("basicComplete", async () => {
     writer: stdout,
     setRaw: false,
     keyMap: generateKeyMap(1, {
-      completion: basicCompletion(["abc"]),
+      completion: basicCompletion(["ab", "abc"]),
     }),
   });
   console.log("\n---");
@@ -88,7 +93,10 @@ Deno.test("basicHighlight", async () => {
         new Map<
           string | RegExp | (string | RegExp)[],
           ((input: string) => string) | ((input: string) => string)[]
-        >([[["(", ")"], color.red], ["x", color.italic]]),
+        >([
+          [["(", ")"], color.red],
+          ["x", color.italic],
+        ]),
       ),
     }),
     "([x])",

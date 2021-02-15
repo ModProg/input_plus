@@ -18,14 +18,21 @@ This is currently in early development.
 - [x] Multi line input
 - [x] Tab completion
 - [x] Highlighting
+- [x] Yes/No Input
+- [x] cliInput
+  - [ ] More flexible Keywords for autocomplete
+  - [ ] Support for highlighting
 - [ ] anything else
 
 ## Files
 
 - `mod.ts` Is the main module.
-- `utils.ts` Contains some utility functions to make using Input Plus more bearable
+- `utils.ts` Contains some utility functions to make using Input Plus more
+  bearable
 - `helpers.ts` Contains some helpers used in the other files.
-- `example.ts` Example to showcase Input Plus
-- `mod_test.ts` Tests (test with `deno --unstable test mod_test.ts`)
-- `deps.ts` Dependecies
+- `extensions.ts` Contains the extensions for easier import
+- `extensions/*.ts` Implementation of extensions
+- `examples/*.ts` Examples to showcase Input Plus
+- `tests/*_test.ts` Tests (test with `deno --unstable test`)
+- `deps.ts` Dependencies
 - `dev_deps.ts` Development Dependencies

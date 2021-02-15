@@ -12,11 +12,7 @@ export function flatten(map: KeyMap) {
   return flatMap;
 }
 
-export type Keys =
-  | KeySpec
-  | string
-  | RegExp
-  | (KeySpec | string | RegExp)[];
+export type Keys = KeySpec | string | RegExp | (KeySpec | string | RegExp)[];
 
 export class KeySpec {
   key?: RegExp | string;
@@ -85,6 +81,10 @@ export enum ANSI {
   RCP = "u",
 }
 
+export enum ASCII {
+  EOT = "\u0004",
+}
+
 export enum DeleteMode {
   FromCursor = 0,
   ToCursor = 1,
@@ -99,23 +99,21 @@ export function hasOwnProperty<
   X extends Record<string, unknown>,
   Y extends PropertyKey,
   Z extends PrimitiveOrConstructor,
->(
-  obj: unknown,
-  prop: Y,
-  type: Z,
-): obj is X & Record<Y, GuardedType<Z>> {
+>(obj: unknown, prop: Y, type: Z): obj is X & Record<Y, GuardedType<Z>> {
   if (isRecord(obj) && prop in obj) {
     const localPrimitiveOrConstructor: PrimitiveOrConstructor = type;
     if (typeof localPrimitiveOrConstructor === "string") {
-      return type === "unknown" ||
-        typeof obj[prop] === localPrimitiveOrConstructor;
+      return (
+        type === "unknown" || typeof obj[prop] === localPrimitiveOrConstructor
+      );
     }
     return obj[prop] instanceof localPrimitiveOrConstructor;
   }
   return false;
 }
 
-interface typeMap { // for mapping from strings to types
+interface typeMap {
+  // for mapping from strings to types
   string: string;
   number: number;
   boolean: boolean;
@@ -127,11 +125,19 @@ type PrimitiveOrConstructor = // 'string' | 'number' | 'boolean' | constructor
   | keyof typeMap;
 
 // infer the guarded type from a specific case of PrimitiveOrConstructor
-type GuardedType<T extends PrimitiveOrConstructor> = T extends
-  { new (...args: unknown[]): infer U } ? U
+type GuardedType<T extends PrimitiveOrConstructor> = T extends {
+  new (...args: unknown[]): infer U;
+} ? U
   : T extends keyof typeMap ? typeMap[T]
   : never;
 
 export function pipe<T>(...fns: ((...args: T[]) => T)[]) {
   return fns.reduce((f, g) => (...args: T[]) => g(f(...args)));
 }
+
+export type InputConf = {
+  reader?: Deno.Reader & { rid: number };
+  writer?: Deno.Writer;
+  bufferLength?: number;
+  setRaw?: boolean;
+};

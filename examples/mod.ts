@@ -1,24 +1,6 @@
-import { color } from "./dev_deps.ts";
-import { readInput } from "./mod.ts";
-import { basicCompletion, basicHighlighter, generateKeyMap } from "./utils.ts";
-console.log("Single Char Input:");
-console.log("Human? [Y/N]:");
-if (
-  "y" === (await readInput(
-    {
-      keyMap: new Map(
-        [[
-          /[yn]/i,
-          ({ key }) => ({ input: key.key?.toLowerCase(), endinput: true }),
-        ]],
-      ),
-    },
-  ))
-) {
-  console.log("Sure about that?");
-} else {
-  console.log("Me neither.");
-}
+import { color } from "../dev_deps.ts";
+import { readInput } from "../mod.ts";
+import { basicCompletion, basicHighlighter, generateKeyMap } from "../utils.ts";
 
 console.log(
   'Single Line Input, tab completes "hello", "hell" and "Im" to "I\'m":',

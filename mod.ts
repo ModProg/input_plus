@@ -1,5 +1,5 @@
 import { ANSI, DeleteMode, flatten, Keys } from "./helpers.ts";
-import { decodeKeypress, Keypress } from "./deps.ts";
+import { decodeKeypress, encode, Keypress } from "./deps.ts";
 import { generateKeyMap } from "./utils.ts";
 
 export type mapFunc = (args: {
@@ -42,6 +42,7 @@ export async function readInput({
   bufferLength = 1024,
   highlighter = (input) => input,
   setRaw = true,
+  prefix = "",
 }: {
   reader?: Deno.Reader & { rid: number };
   writer?: Deno.Writer;
@@ -49,24 +50,28 @@ export async function readInput({
   bufferLength?: number;
   highlighter?: (line: string) => string;
   setRaw?: boolean;
+  prefix?: string;
 } = {}): Promise<string> {
   if (setRaw) {
     if (!Deno.isatty(reader.rid)) {
-      throw new Error("Keypress can be read only under TTY.");
+      throw new Error("Advanced features only available on TTY.");
     } else {
       Deno.setRaw(reader.rid, true);
     }
   }
 
   const flatMap = flatten(keyMap);
-  const encoder = new TextEncoder();
   var lines: string[] = [""];
   const buffer = new Uint8Array(bufferLength);
   var cursorX = 0;
   var cursorY = 0;
+  const xOffset = prefix.length;
   const state: State = {
     keyPressIndex: 0,
   };
+
+  writer.write(encode(prefix));
+
   while (true) {
     const length = <number> await reader.read(buffer);
     const events = decodeKeypress(buffer.subarray(0, length));
@@ -94,14 +99,14 @@ export async function readInput({
       if (todo.lines) {
         lines = todo.lines;
         await writer.write(
-          encoder.encode(
+          encode(
             (0 != cursorY ? ANSI.CSI + cursorY + ANSI.CUU : "") +
               ANSI.CSI + 1 + ANSI.CHA + //move to beginning of line
               ANSI.CSI + ANSI.ED + // clear Screen
               ANSI.CSI + ANSI.SCP + // save Cursor Position
-              lines.map(highlighter).join("\n") +
+              prefix + lines.map(highlighter).join("\n" + prefix) +
               ANSI.CSI + ANSI.RCP + // return to saved Cursor Position
-              ANSI.CSI + (cursorX + 1) + ANSI.CHA + // move to cursorX
+              ANSI.CSI + (cursorX + 1 + xOffset) + ANSI.CHA + // move to cursorX
               (0 != cursorY ? ANSI.CSI + cursorY + ANSI.CUD : ""),
           ),
         );
@@ -115,8 +120,9 @@ export async function readInput({
           const oldY = cursorY;
           cursorY = Math.min(Math.max(todo.cursorY, 0), lines.length - 1);
           await writer.write(
-            encoder.encode(
-              ANSI.CSI + Math.abs(oldY - cursorY) +
+            encode(
+              ANSI.CSI +
+                Math.abs(oldY - cursorY) +
                 (oldY > cursorY ? ANSI.CUU : ANSI.CUD),
             ),
           );
@@ -124,20 +130,28 @@ export async function readInput({
       }
       if (todo.input != undefined) {
         lines[cursorY] = todo.input;
-        await writer.write(encoder.encode(
-          ANSI.CSI + ANSI.SCP + // save Cursor Position
-            ANSI.CSI + 1 + ANSI.CHA + // move to beginning of line
-            ANSI.CSI + DeleteMode.Complete + ANSI.EL + // clear line
-            highlighter(todo.input) +
-            ANSI.CSI + ANSI.RCP, // return to saved Cursor Position
-        ));
+        await writer.write(
+          encode(
+            ANSI.CSI +
+              ANSI.SCP + // save Cursor Position
+              ANSI.CSI +
+              1 +
+              ANSI.CHA + // move to beginning of line
+              ANSI.CSI +
+              DeleteMode.Complete +
+              ANSI.EL + // clear line
+              prefix +
+              highlighter(todo.input) +
+              ANSI.CSI +
+              ANSI.RCP, // return to saved Cursor Position
+          ),
+        );
       }
       if (todo.cursorX != undefined && todo.cursorX != cursorX) {
-        cursorX = Math.min(
-          Math.max(todo.cursorX, 0),
-          lines[cursorY].length,
+        cursorX = Math.min(Math.max(todo.cursorX, 0), lines[cursorY].length);
+        await writer.write(
+          encode(ANSI.CSI + (cursorX + 1 + xOffset) + ANSI.CHA),
         );
-        await writer.write(encoder.encode(ANSI.CSI + (cursorX + 1) + ANSI.CHA));
       }
 
       if (todo.endinput) {
