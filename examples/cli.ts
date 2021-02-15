@@ -28,6 +28,6 @@ cliInput(
   {
     errorMessage: "This command does not exist!\nMaybe try something else.",
     inputPre: "> ",
-    outputPre: "< "
+    outputPre: "< ",
   },
 );

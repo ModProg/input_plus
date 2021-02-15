@@ -107,11 +107,12 @@ export function advancedCompletion(
     /**
      * complete input, left of the cursor
      */
-    line: string, 
+    line: string,
     /**
      * lastWord entered, left of the cursor
      */
-    lastWord: string) => string[],
+    lastWord: string,
+  ) => string[],
 ): ({}: {
   input: string;
   cursorX: number;
