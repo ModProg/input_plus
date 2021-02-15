@@ -44,4 +44,4 @@ jobs:
         run: deno cache --unstable deps.ts dev_deps.ts
 
       - name: Run Tests
-        run: deno test --unstable mod_test.ts
+        run: deno test --unstable
