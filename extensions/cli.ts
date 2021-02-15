@@ -18,11 +18,17 @@ type cliEntry = {
    * The returned string is printed
    * If @constant END_OF_INPUT (-1) is returned the cli input will close
    */
-  exec?:
-    | string
-    | typeof END_OF_INPUT
-    | ((args: string[]) => typeof END_OF_INPUT | string | void);
+  exec?: cliFunction;
 };
+
+type cliFunction =
+  | string
+  | typeof END_OF_INPUT
+  | ((
+    args: string[],
+  ) =>
+    | Promise<typeof END_OF_INPUT | string | void>
+    | (typeof END_OF_INPUT | string | void));
 
 /**
  * If returned by an cliEntry's exec, the cli input will close
@@ -120,7 +126,7 @@ export async function cliInput(
       .toLocaleLowerCase();
 
     const { exec, words } = walkCli(input.trim().split(/\s+/), cliEntries);
-    const res = typeof exec == "function" ? exec(words) : exec;
+    const res = typeof exec == "function" ? await exec(words) : exec;
     if (done || res === -1) {
       await writer.write(encode("\n"));
       return;
@@ -139,12 +145,12 @@ function walkCli(
   words: string[],
   cli: cliEntries = [],
   limit = Infinity,
-  exec?: string | -1 | ((args: string[]) => string | void | -1),
+  exec?: cliFunction,
   args: string[] = [],
 ): {
   words: string[];
   options?: cliEntries;
-  exec?: string | -1 | ((args: string[]) => string | void | -1);
+  exec?: cliFunction;
 } {
   const cliArray = typeof cli == "function" ? cli() : cli;
 
