@@ -3,7 +3,7 @@ import { ANSI, InputConf, Keys, KeySpec } from "../helpers.ts";
 import { KeyMap, readInput } from "../mod.ts";
 
 /**
- * 
+ *
  * @param question The question to be asked
  * @param preference What input is preferred, i.e. executed on return
  */
@@ -19,7 +19,7 @@ export async function ynInput(
     inputConf = {},
   }: {
     /**
-     * The label for the yes Option, the default `y` results 
+     * The label for the yes Option, the default `y` results
      * in [y/n] or [Y/n] and Y after answering
      */
     yesName?: string;
@@ -37,7 +37,7 @@ export async function ynInput(
      */
     noKeys?: Keys;
     /**
-     * Keys that will result in the @param preference being returned, 
+     * Keys that will result in the @param preference being returned,
      * nothing happens when @param preference == ""
      */
     defaultKeys?: Keys;

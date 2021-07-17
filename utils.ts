@@ -99,7 +99,7 @@ export function basicCompletion(
 
 /**
  * Generates a Completion function for {@link generateKeyMap}
- * @param completer Function that generates all possible options 
+ * @param completer Function that generates all possible options
  * for the entered line and lastWord
  */
 export function advancedCompletion(

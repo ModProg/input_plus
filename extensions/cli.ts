@@ -41,7 +41,7 @@ export type cliEntries = cliArray | (() => cliArray);
 // TODO Implement support for highlighting
 /**
  * A simple interactive cliInput with Tab completion
- * @param cliEntries An Array or a Function returning an Array of `cliEntry`s 
+ * @param cliEntries An Array or a Function returning an Array of `cliEntry`s
  */
 export async function cliInput(
   cliEntries: cliEntries,
@@ -54,7 +54,7 @@ export async function cliInput(
     inputConf = {},
   }: {
     /**
-     * Keys submitting the input for evaluation 
+     * Keys submitting the input for evaluation
      */
     endLine?: Keys;
     /**
