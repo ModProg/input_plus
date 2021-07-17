@@ -7,7 +7,11 @@ Input Plus is a module for advanced Input (multiline input, tab completion etc.)
 You can try it with:
 
 ```
-deno run --unstable https://deno.land/x/input_plus/example.ts
+deno run --unstable https://deno.land/x/input_plus/examples/mod.ts
+# An example repl
+deno run --unstable https://deno.land/x/input_plus/examples/cli.ts
+# An example yes/no promp
+deno run --unstable https://deno.land/x/input_plus/examples/yesno.ts
 ```
 
 This is currently in early development.
